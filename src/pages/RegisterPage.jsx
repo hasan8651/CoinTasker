@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { UserRole } from "./types";
-import { DEFAULT_WORKER_COINS, DEFAULT_BUYER_COINS } from "./constants";
+
+import { UserRole } from "../types";
+import { DEFAULT_WORKER_COINS, DEFAULT_BUYER_COINS } from "../constants";
 import { Link } from "react-router";
+
+// onRegister(user, token) উপরে App.jsx থেকে আসবে,
+// যাতে successful registration এর পর login like behaviour করা যায়
 
 function RegisterPage({ onRegister }) {
   const [name, setName] = useState("");
@@ -9,11 +13,11 @@ function RegisterPage({ onRegister }) {
   const [photoUrl, setPhotoUrl] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState(UserRole.Worker); // Default to Worker
+  const [role, setRole] = useState(UserRole.Worker); // "Worker" | "Buyer"
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Simple client-side validation
+  // basic email + password validation (client-side)
   const validateInputs = () => {
     if (!name || !email || !password || !confirmPassword || !role) {
       setError("All fields are required.");
@@ -40,40 +44,57 @@ function RegisterPage({ onRegister }) {
     if (!validateInputs()) return;
 
     setLoading(true);
+    setError("");
 
-    // Simulate API call for registration
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const baseUrl =
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
-    // For demo purposes, check for existing dummy user emails
-    const existingUsers = [
-      "worker@example.com",
-      "buyer@example.com",
-      "admin@example.com",
-    ];
-    if (existingUsers.includes(email)) {
-      setError("An account with this email already exists.");
+      const res = await fetch(`${baseUrl}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          photoUrl,
+          password,
+          role, // "Worker" or "Buyer"
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Registration failed.");
+        setLoading(false);
+        return;
+      }
+
+      // server already coins set করেছে, তবে চাইলে client টেস্টের জন্য check করতে পারো:
+      const expectedCoins =
+        role === UserRole.Worker
+          ? DEFAULT_WORKER_COINS
+          : DEFAULT_BUYER_COINS;
+
+      if (data.user && data.user.coins !== expectedCoins) {
+        console.warn(
+          "Coin mismatch: server:",
+          data.user.coins,
+          "expected:",
+          expectedCoins
+        );
+      }
+
+      // সফল হলে parent App.jsx কে জানাও (login এর মতো behaviour)
+      onRegister(data.user, data.token);
+    } catch (err) {
+      console.error("Register error:", err);
+      setError("Network error. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const initialCoins =
-      role === UserRole.Worker ? DEFAULT_WORKER_COINS : DEFAULT_BUYER_COINS;
-
-    const newUser = {
-      id: `user-${Date.now()}`, // Unique ID
-      name,
-      email,
-      photoUrl:
-        photoUrl ||
-        `https://picsum.photos/50/50?name=${name.replace(/\s/g, "")}`, // Default generic image
-      role,
-      coins: initialCoins,
-    };
-
-    const token = `dummy-jwt-token-${newUser.id}`; // Dummy token
-    onRegister(newUser, token); // Log in the user after successful registration
-
-    setLoading(false);
   };
 
   return (
@@ -93,6 +114,7 @@ function RegisterPage({ onRegister }) {
         )}
 
         <form onSubmit={handleRegister} className="space-y-6">
+          {/* Name */}
           <div>
             <label
               htmlFor="name"
@@ -111,6 +133,7 @@ function RegisterPage({ onRegister }) {
             />
           </div>
 
+          {/* Email */}
           <div>
             <label
               htmlFor="email"
@@ -129,6 +152,7 @@ function RegisterPage({ onRegister }) {
             />
           </div>
 
+          {/* Profile picture URL (optional) */}
           <div>
             <label
               htmlFor="photoUrl"
@@ -146,6 +170,7 @@ function RegisterPage({ onRegister }) {
             />
           </div>
 
+          {/* Password */}
           <div>
             <label
               htmlFor="password"
@@ -164,6 +189,7 @@ function RegisterPage({ onRegister }) {
             />
           </div>
 
+          {/* Confirm password */}
           <div>
             <label
               htmlFor="confirmPassword"
@@ -182,6 +208,7 @@ function RegisterPage({ onRegister }) {
             />
           </div>
 
+          {/* Role select */}
           <div>
             <label
               htmlFor="role"

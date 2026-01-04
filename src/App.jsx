@@ -14,8 +14,10 @@ import {
 // import NotificationPopup from "./components/NotificationPopup";
 import { getNotifications, markNotificationAsRead } from "./services/notificationService";
 import HomePage from "./HomePage";
-import LoginPage from "./LoginPage";
-import RegisterPage from "./RegisterPage";
+
+import RegisterPage from "./pages/RegisterPage";
+import LoginPage from "./pages/LoginPage";
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -212,7 +214,10 @@ function App() {
           onNotificationClick={handleNotificationClick}
         />
       )}
+
+      
     </div>
+    
   );
 }
 

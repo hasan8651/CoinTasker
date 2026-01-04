@@ -1,5 +1,5 @@
-export const WEBSITE_NAME = "MicroTasker Hub";
-export const GITHUB_REPO_URL = "https://github.com/your-username/your-repo"; // TODO: আসল URL দাও
+export const WEBSITE_NAME = "CoinTasker";
+export const GITHUB_REPO_URL = "https://github.com/hasan8651/CoinTasker.git";
 
 export const LOCAL_STORAGE_AUTH_TOKEN_KEY = "microtasker_auth_token";
 export const LOCAL_STORAGE_USER_KEY = "microtasker_user";

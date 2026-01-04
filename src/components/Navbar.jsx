@@ -1,154 +1,213 @@
+// src/components/Navbar.jsx
 import { useState } from "react";
 import { WEBSITE_NAME, GITHUB_REPO_URL } from "../constants";
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 
-function Navbar({
-  isLoggedIn,
-  currentUser,
-  onLogout,
-  onNotificationToggle,
-  unreadNotificationCount,
-}) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+function Navbar({ isLoggedIn, currentUser, onLogout }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const getDashboardHomePath = (role) => {
-    // এখন সব রোলের জন্য একই: /dashboard
-    // future এ চাইলে role অনুযায়ী আলাদা path দিতে পারো
-    return "/dashboard";
-  };
+  const toggleMobile = () => setMobileOpen((prev) => !prev);
+  const closeMobile = () => setMobileOpen(false);
+
+  const availableCoins = currentUser?.coins ?? 0;
+  const avatarUrl =
+    currentUser?.photoUrl || "https://picsum.photos/40/40?random=user";
+  const avatarName =
+    currentUser?.name || currentUser?.email || "User";
+
+  const navLinkClass =
+    "px-3 py-2 rounded-md text-sm font-medium hover:bg-base-200";
+  const activeNavLinkClass = "bg-base-200 text-primary";
 
   return (
-    <nav className="bg-indigo-700 p-4 shadow-md sticky top-0 z-50">
-      <div className="container mx-auto flex items-center justify-between flex-wrap">
-        {/* Website Name / Logo */}
-        <Link
-          to="/"
-          className="flex items-center text-white text-2xl font-bold"
-        >
-          <img
-            src="https://picsum.photos/40/40"
-            alt="Logo"
-            className="h-8 w-8 mr-2 rounded-full"
-          />
-          {WEBSITE_NAME}
-        </Link>
-
-        {/* Mobile menu button */}
-        <div className="block lg:hidden">
-          <button
-            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-            className="flex items-center px-3 py-2 border rounded text-indigo-200 border-indigo-400 hover:text-white hover:border-white"
+    <nav className="navbar bg-base-100 border-b border-base-300 sticky top-0 z-50">
+      <div className="container mx-auto flex items-center justify-between px-4">
+        {/* Left: Logo + name */}
+        <div className="flex items-center gap-2">
+          <Link
+            to="/"
+            className="flex items-center gap-2 hover:opacity-90 transition"
           >
-            <svg
-              className="fill-current h-3 w-3"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <title>Menu</title>
-              <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v15z" />
-            </svg>
-          </button>
+            {/* Logo image চাইলে এখানে নিজের লোগো replace করবে */}
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-base-100 font-bold">
+              CT
+            </div>
+            <span className="text-lg md:text-xl font-bold">
+              {WEBSITE_NAME}
+            </span>
+          </Link>
         </div>
 
-        {/* Desktop and mobile menu items */}
-        <div
-          className={`${
-            isMobileMenuOpen ? "block" : "hidden"
-          } w-full flex-grow lg:flex lg:items-center lg:w-auto`}
-        >
-          <div className="text-sm lg:flex-grow lg:flex lg:justify-end lg:items-center">
-            {isLoggedIn && currentUser ? (
-              <>
-                <Link
-                  to={getDashboardHomePath(currentUser.role)}
-                  className="block mt-4 lg:inline-block lg:mt-0 text-indigo-200 hover:text-white mr-4 text-base font-medium"
-                >
-                  Dashboard
-                </Link>
+        {/* Desktop nav (right side) */}
+        <div className="hidden md:flex items-center gap-4">
+          {!isLoggedIn && (
+            <>
+              <NavLink
+                to="/login"
+                className={({ isActive }) =>
+                  `${navLinkClass} ${isActive ? activeNavLinkClass : ""}`
+                }
+              >
+                Login
+              </NavLink>
+              <NavLink
+                to="/register"
+                className={({ isActive }) =>
+                  `${navLinkClass} ${isActive ? activeNavLinkClass : ""}`
+                }
+              >
+                Register
+              </NavLink>
+            </>
+          )}
 
-                <span className="block mt-4 lg:inline-block lg:mt-0 text-yellow-400 mr-4 text-base font-bold">
-                  Coins: {currentUser.coins}
+          {isLoggedIn && currentUser && (
+            <>
+              <NavLink
+                to="/dashboard"
+                className={({ isActive }) =>
+                  `${navLinkClass} ${isActive ? activeNavLinkClass : ""}`
+                }
+              >
+                Dashboard
+              </NavLink>
+
+              <span className="px-3 py-2 rounded-md text-sm font-semibold bg-base-200 text-warning">
+                Coins: {availableCoins}
+              </span>
+
+              <div className="flex items-center gap-2">
+                {/* Avatar + name */}
+                <div className="avatar">
+                  <div className="w-9 h-9 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                    <img src={avatarUrl} alt={avatarName} />
+                  </div>
+                </div>
+                <span className="hidden lg:inline text-sm font-medium">
+                  {avatarName}
                 </span>
-
-                {/* Notifications */}
-                <div className="relative inline-block text-left mr-4 mt-4 lg:mt-0">
-                  <button
-                    onClick={onNotificationToggle}
-                    className="text-indigo-200 hover:text-white relative"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                      />
-                    </svg>
-                    {unreadNotificationCount > 0 && (
-                      <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
-                        {unreadNotificationCount}
-                      </span>
-                    )}
-                  </button>
-                </div>
-
-                {/* User avatar */}
-                <div className="flex items-center mt-4 lg:mt-0 mr-4">
-                  <img
-                    src={
-                      currentUser.photoUrl || "https://picsum.photos/50/50"
-                    }
-                    alt="User Profile"
-                    className="w-8 h-8 rounded-full mr-2"
-                  />
-                  <span className="text-white text-base font-medium hidden md:inline">
-                    {currentUser.name}
-                  </span>
-                </div>
-
-                {/* Logout */}
                 <button
                   onClick={onLogout}
-                  className="block mt-4 lg:inline-block lg:mt-0 text-base px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-indigo-700 hover:bg-white transition-colors duration-300"
+                  className="btn btn-sm btn-outline btn-error ml-1"
                 >
                   Logout
                 </button>
-              </>
+              </div>
+            </>
+          )}
+
+          {/* Join as Developer – always visible */}
+          <a
+            href={GITHUB_REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-sm btn-primary normal-case"
+          >
+            Join as Developer
+          </a>
+        </div>
+
+        {/* Mobile: hamburger */}
+        <div className="md:hidden flex items-center">
+          <button
+            onClick={toggleMobile}
+            className="btn btn-ghost btn-circle"
+            aria-label="Toggle navigation"
+          >
+            {mobileOpen ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path d="M6 18L18 6M6 6l12 12" />
+              </svg>
             ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile dropdown menu */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-base-300 bg-base-100">
+          <div className="px-4 pt-2 pb-3 space-y-1">
+            {!isLoggedIn && (
               <>
                 <Link
                   to="/login"
-                  className="block mt-4 lg:inline-block lg:mt-0 text-base text-indigo-200 hover:text-white mr-4 font-medium"
+                  onClick={closeMobile}
+                  className={navLinkClass}
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="block mt-4 lg:inline-block lg:mt-0 text-base text-indigo-200 hover:text-white mr-4 font-medium"
+                  onClick={closeMobile}
+                  className={navLinkClass}
                 >
                   Register
                 </Link>
               </>
             )}
 
-            {/* GitHub / Join as Developer */}
+            {isLoggedIn && currentUser && (
+              <>
+                <Link
+                  to="/dashboard"
+                  onClick={closeMobile}
+                  className={navLinkClass}
+                >
+                  Dashboard
+                </Link>
+                <div className="flex items-center justify-between px-3 py-2">
+                  <span className="text-sm font-semibold text-warning">
+                    Coins: {availableCoins}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2">
+                  <div className="avatar">
+                    <div className="w-8 h-8 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                      <img src={avatarUrl} alt={avatarName} />
+                    </div>
+                  </div>
+                  <span className="text-sm font-medium">{avatarName}</span>
+                </div>
+                <button
+                  onClick={() => {
+                    closeMobile();
+                    onLogout();
+                  }}
+                  className="btn btn-sm btn-outline btn-error w-full mt-1"
+                >
+                  Logout
+                </button>
+              </>
+            )}
+
             <a
               href={GITHUB_REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="block mt-4 lg:inline-block lg:mt-0 text-base px-4 py-2 leading-none border rounded text-yellow-400 border-yellow-400 hover:border-transparent hover:text-indigo-700 hover:bg-yellow-400 transition-colors duration-300 ml-0 lg:ml-4"
+              onClick={closeMobile}
+              className="btn btn-sm btn-primary w-full normal-case mt-2"
             >
               Join as Developer
             </a>
           </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { UserRole } from "../types";
 import { WEBSITE_NAME, GITHUB_REPO_URL } from "../constants";
 import Footer from "../components/Footer";
@@ -41,61 +41,68 @@ function DashboardLayout({
   };
 
   const navLinks = getNavigationLinks(currentUser.role);
+ const coins = currentUser.coins ?? 0;
+  const avatarUrl =
+    currentUser.photoUrl || "https://picsum.photos/50/50?random=avatar";
+
+  const roleLabel = String(currentUser.role);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Top Navbar */}
-      <nav className="bg-indigo-700 p-4 shadow-md sticky top-0 z-50">
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center">
-            {/* Mobile Sidebar Toggle */}
-            <button
-              onClick={() => setIsSidebarOpen((prev) => !prev)}
-              className="text-white lg:hidden mr-4"
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16m-7 6h7"
-                />
-              </svg>
-            </button>
-
-            {/* Website Name / Logo */}
+    <div className="flex flex-col min-h-screen bg-base-200">
+      {/* TOP HEADER */}
+      <header className="bg-base-100 border-b border-base-300 shadow-sm sticky top-0 z-40">
+        <div className="container mx-auto px-4 py-3 space-y-2">
+          {/* Row 1: Logo | Coins + Avatar */}
+          <div className="flex items-center justify-between gap-4">
+            {/* Left: Logo */}
             <Link
               to="/"
-              className="flex items-center text-white text-2xl font-bold"
+              className="flex items-center gap-2 hover:opacity-90 transition"
             >
-              <img
-                src="https://picsum.photos/40/40"
-                alt="Logo"
-                className="h-8 w-8 mr-2 rounded-full"
-              />
-              {WEBSITE_NAME}
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-base-100 font-bold">
+                CT
+              </div>
+              <span className="text-lg font-bold">{WEBSITE_NAME}</span>
             </Link>
+
+            {/* Right: Coins + Avatar */}
+            <div className="flex items-center gap-4">
+              <span className="px-3 py-1 rounded-full bg-base-200 text-sm font-semibold text-warning">
+                Coins: {coins}
+              </span>
+              <div className="flex items-center gap-2">
+                <div className="avatar">
+                  <div className="w-9 h-9 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                    <img src={avatarUrl} alt={currentUser.name} />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <span className="text-yellow-400 text-lg font-bold hidden md:inline">
-              Coins: {currentUser.coins}
-            </span>
+          {/* Row 2: Role | Name   ||   Notification + Logout */}
+          <div className="flex items-center justify-between gap-4">
+            {/* Left: Role + Name */}
+            <div className="flex flex-col">
+              <span className="text-xs uppercase tracking-wide text-base-content/60">
+                {roleLabel} Dashboard
+              </span>
+              <span className="text-sm font-semibold text-base-content">
+                {currentUser.name} ({currentUser.email})
+              </span>
+            </div>
 
-            {/* Notifications */}
-            <div className="relative inline-block text-left">
+            {/* Right: Notification + Logout */}
+            <div className="flex items-center gap-3">
+              {/* Notification */}
               <button
                 onClick={onNotificationToggle}
-                className="text-indigo-200 hover:text-white relative"
+                className="relative btn btn-sm btn-ghost btn-circle"
+                aria-label="Notifications"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
+                  className="h-5 w-5"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -108,112 +115,122 @@ function DashboardLayout({
                   />
                 </svg>
                 {unreadNotificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
+                  <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-base-100 bg-error rounded-full">
                     {unreadNotificationCount}
                   </span>
                 )}
               </button>
-            </div>
 
-            {/* User info */}
-            <div className="flex items-center">
-              <img
-                src={currentUser.photoUrl || "https://picsum.photos/50/50"}
-                alt="User Profile"
-                className="w-8 h-8 rounded-full mr-2"
-              />
-              <div className="hidden md:flex flex-col text-sm">
-                <span className="text-white font-medium">
-                  {currentUser.name}
-                </span>
-                <span className="text-indigo-200 text-xs capitalize">
-                  {String(currentUser.role).toLowerCase()}
-                </span>
-              </div>
-            </div>
+              {/* Logout */}
+              <button
+                onClick={onLogout}
+                className="btn btn-sm btn-outline btn-error normal-case"
+              >
+                Logout
+              </button>
 
-            {/* Logout */}
-            <button
-              onClick={onLogout}
-              className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-300"
-            >
-              Logout
-            </button>
+              {/* Mobile sidebar toggle */}
+              <button
+                onClick={() => setIsSidebarOpen((prev) => !prev)}
+                className="btn btn-ghost btn-circle lg:hidden"
+                aria-label="Toggle sidebar"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16m0 6H10"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Main Content Area */}
-      <div className="flex-grow flex">
-        {/* Sidebar Navigation */}
+      {/* MAIN CONTENT AREA */}
+      <div className="flex flex-1">
+        {/* SIDEBAR NAVIGATION */}
         <aside
-          className={`fixed inset-y-0 left-0 bg-gray-800 text-white w-64 p-4 transform ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out z-40 flex flex-col`}
+          className={`
+            fixed inset-y-0 left-0 z-30
+            w-64 bg-base-100 border-r border-base-300
+            transform transition-transform duration-300 ease-in-out
+            ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+            lg:relative lg:translate-x-0
+          `}
         >
-          {/* Close button for mobile */}
-          <button
-            onClick={() => setIsSidebarOpen(false)}
-            className="absolute top-4 right-4 text-white lg:hidden"
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+          <div className="h-full flex flex-col">
+            {/* Close button for mobile */}
+            <div className="flex items-center justify-between px-4 py-3 lg:hidden border-b border-base-300">
+              <span className="font-semibold text-sm">Navigation</span>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="btn btn-ghost btn-circle btn-xs"
+                aria-label="Close sidebar"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
 
-          <div className="mb-8 mt-8 lg:mt-0 text-center">
-            <p className="text-lg font-semibold capitalize">
-              {currentUser.role} Dashboard
-            </p>
-            <p className="text-yellow-400 text-sm md:hidden">
-              Coins: {currentUser.coins}
-            </p>
-          </div>
+            {/* Links */}
+            <nav className="flex-1 overflow-y-auto px-4 py-4">
+              <ul className="space-y-1">
+                {navLinks.map((link) => (
+                  <li key={link.path}>
+                    <Link
+                      to={link.path}
+                      onClick={() => setIsSidebarOpen(false)}
+                      className="block px-3 py-2 rounded-md text-sm text-base-content/80 hover:bg-primary/10 hover:text-primary transition-colors"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-          <nav className="flex-grow">
-            <ul>
-              {navLinks.map((link) => (
-                <li key={link.path} className="mb-2">
-                  <Link
-                    to={link.path}
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="block p-3 rounded-md text-gray-300 hover:bg-indigo-600 hover:text-white transition-colors duration-200 text-base"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <div className="mt-auto pt-4 border-t border-gray-700 text-center">
-            <a
-              href={GITHUB_REPO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block px-4 py-2 leading-none border rounded text-yellow-400 border-yellow-400 hover:border-transparent hover:text-gray-800 hover:bg-yellow-400 transition-colors duration-300 text-sm"
-            >
-              Join as Developer
-            </a>
+            {/* Join as Dev in sidebar bottom */}
+            <div className="px-4 py-3 border-t border-base-300">
+              <a
+                href={GITHUB_REPO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-sm btn-outline btn-primary w-full normal-case"
+              >
+                Join as Developer
+              </a>
+            </div>
           </div>
         </aside>
 
-        {/* Dashboard Content */}
-        <main className="flex-grow p-4 lg:p-8">
+        {/* MAIN DASHBOARD SECTIONS (ROUTES) */}
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>
 
+      {/* FOOTER */}
       <Footer />
     </div>
   );

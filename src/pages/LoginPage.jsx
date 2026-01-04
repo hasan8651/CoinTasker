@@ -1,7 +1,10 @@
+// src/pages/LoginPage.jsx
 import { useState } from "react";
-import { UserRole } from "./types"; // JS এ UserRole object/export ধরে নিচ্ছি
-import { DEFAULT_WORKER_COINS } from "./constants";
+import { UserRole } from "../types";
+import { DEFAULT_WORKER_COINS } from "../constants";
 import { Link } from "react-router";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../firebase/firebase.config";
 
 function LoginPage({ onLogin }) {
   const [email, setEmail] = useState("");
@@ -9,83 +12,100 @@ function LoginPage({ onLogin }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Dummy user data for demonstration
-  const dummyUsers = [
-    {
-      id: "worker-1",
-      name: "Worker One",
-      email: "worker@example.com",
-      photoUrl: "https://picsum.photos/50/50?worker",
-      role: UserRole.Worker,
-      coins: 150,
-    },
-    {
-      id: "buyer-1",
-      name: "Buyer One",
-      email: "buyer@example.com",
-      photoUrl: "https://picsum.photos/50/50?buyer",
-      role: UserRole.Buyer,
-      coins: 500,
-    },
-    {
-      id: "admin-1",
-      name: "Admin One",
-      email: "admin@example.com",
-      photoUrl: "https://picsum.photos/50/50?admin",
-      role: UserRole.Admin,
-      coins: 9999,
-    },
-  ];
+  // simple email validation
+  const isValidEmail = (value) => /\S+@\S+\.\S+/.test(value);
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!email || !password) {
+      setError("Email and password are required.");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError("Invalid email format.");
+      return;
+    }
+
     setLoading(true);
 
-    // Simulate API call for login
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const baseUrl =
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
-    const userFound = dummyUsers.find(
-      (u) => u.email === email && password === "password123" // Simple dummy password check
-    );
+      const res = await fetch(`${baseUrl}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (userFound) {
-      const token = `dummy-jwt-token-${userFound.id}`; // Dummy token
-      onLogin(userFound, token);
-    } else {
-      setError("Invalid email or password.");
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Login failed.");
+        setLoading(false);
+        return;
+      }
+
+      // সফল হলে parent App.jsx এ onLogin কল করবে
+      onLogin(data.user, data.token);
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
+  // Google Sign-In (এখন demo/mock, পরে চাইলে Firebase Auth integrate করবে)
   const handleGoogleSignIn = async () => {
     setError("");
     setLoading(true);
 
-    // Simulate Google Sign-In
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      // Firebase popup
+      const result = await signInWithPopup(auth, googleProvider);
+      const firebaseUser = result.user;
+      const idToken = await firebaseUser.getIdToken();
 
-    // For demo, assume a successful Google sign-in creates a new user or logs in an existing one
-    const googleUser = {
-      id: `google-user-${Date.now()}`,
-      name: "Google User",
-      email: `googleuser${Date.now()}@gmail.com`,
-      photoUrl:
-        "https://lh3.googleusercontent.com/a/AGNmyxZ1_0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0=s96-c", // Dummy Google profile pic
-      role: UserRole.Worker, // Default role for Google sign-in
-      coins: DEFAULT_WORKER_COINS, // Default coins
-    };
-    const token = `dummy-jwt-token-google-${googleUser.id}`;
-    onLogin(googleUser, token);
+      const baseUrl =
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
-    setLoading(false);
+      const res = await fetch(`${baseUrl}/api/auth/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Google sign-in failed.");
+        setLoading(false);
+        return;
+      }
+
+      onLogin(data.user, data.token);
+    } catch (err) {
+      console.error("Google sign-in error:", err);
+      setError("Google sign-in failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+
+
   };
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-160px)] bg-gray-50 p-4">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-xl border border-indigo-100 animate-fade-in-up">
         <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
-          Login to MicroTasker Hub
+          Login to CoinTasker
         </h2>
 
         {error && (
@@ -170,7 +190,7 @@ function LoginPage({ onLogin }) {
         </div>
 
         <p className="mt-8 text-center text-sm text-gray-600">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link
             to="/register"
             className="font-medium text-indigo-600 hover:text-indigo-500"
