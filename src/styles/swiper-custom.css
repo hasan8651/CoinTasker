@@ -1,0 +1,103 @@
+/* Custom CSS for Swiper Navigation and Pagination */
+
+/* Navigation arrows */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #a78bfa; /* Change arrow color */
+  background-color: rgba(255, 255, 255, 0.7); /* Light background for arrows */
+  border-radius: 50%;
+  width: 44px; /* Adjust size */
+  height: 44px; /* Adjust size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #8b5cf6; /* Darker purple on hover */
+  transform: scale(1.05);
+}
+
+/* Make arrows slightly larger for better visibility */
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 1.5rem !important; /* Adjust icon size */
+  font-weight: bold;
+}
+
+/* Pagination bullets */
+.swiper-pagination-bullet {
+  background-color: rgba(255, 255, 255, 0.6); /* Default bullet color */
+  opacity: 0.8;
+  width: 10px;
+  height: 10px;
+  transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #8b5cf6; /* Active bullet color (e.g., Indigo-500) */
+  width: 12px;
+  height: 12px;
+  opacity: 1;
+}
+
+/* Position pagination dots */
+.swiper-pagination {
+  bottom: 10px !important;
+}
+
+/* Custom animations for HomePage sections */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: slideUp 1s ease-out forwards;
+}
+
+.animate-fade-in-up-delay {
+  animation: slideUp 1s ease-out 0.3s forwards;
+  opacity: 0; /* ensure it starts hidden */
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-slide-up-delay {
+  animation: slideUp 0.8s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+.animate-bounce-slow {
+  animation: bounce 2s infinite ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(-5%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+  50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+}
