@@ -4,16 +4,13 @@ import { UserRole } from "../types";
 import { DEFAULT_WORKER_COINS, DEFAULT_BUYER_COINS } from "../constants";
 import { Link } from "react-router";
 
-// onRegister(user, token) উপরে App.jsx থেকে আসবে,
-// যাতে successful registration এর পর login like behaviour করা যায়
-
 function RegisterPage({ onRegister }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState(UserRole.Worker); // "Worker" | "Buyer"
+  const [role, setRole] = useState(UserRole.Worker);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -60,7 +57,7 @@ function RegisterPage({ onRegister }) {
           email,
           photoUrl,
           password,
-          role, // "Worker" or "Buyer"
+          role,
         }),
       });
 
@@ -72,11 +69,8 @@ function RegisterPage({ onRegister }) {
         return;
       }
 
-      // server already coins set করেছে, তবে চাইলে client টেস্টের জন্য check করতে পারো:
       const expectedCoins =
-        role === UserRole.Worker
-          ? DEFAULT_WORKER_COINS
-          : DEFAULT_BUYER_COINS;
+        role === UserRole.Worker ? DEFAULT_WORKER_COINS : DEFAULT_BUYER_COINS;
 
       if (data.user && data.user.coins !== expectedCoins) {
         console.warn(
@@ -87,7 +81,6 @@ function RegisterPage({ onRegister }) {
         );
       }
 
-      // সফল হলে parent App.jsx কে জানাও (login এর মতো behaviour)
       onRegister(data.user, data.token);
     } catch (err) {
       console.error("Register error:", err);
@@ -152,7 +145,7 @@ function RegisterPage({ onRegister }) {
             />
           </div>
 
-          {/* Profile picture URL (optional) */}
+          {/* Profile picture URL */}
           <div>
             <label
               htmlFor="photoUrl"

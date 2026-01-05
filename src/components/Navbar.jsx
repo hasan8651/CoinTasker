@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import { useState } from "react";
 import { WEBSITE_NAME, GITHUB_REPO_URL } from "../constants";
 import { Link, NavLink } from "react-router";
@@ -28,7 +27,7 @@ function Navbar({ isLoggedIn, currentUser, onLogout }) {
             to="/"
             className="flex items-center gap-2 hover:opacity-90 transition"
           >
-            {/* Logo image চাইলে এখানে নিজের লোগো replace করবে */}
+            {/* Logo image */}
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-base-100 font-bold">
               CT
             </div>

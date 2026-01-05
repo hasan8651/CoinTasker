@@ -1,4 +1,3 @@
-// src/pages/LoginPage.jsx
 import { useState } from "react";
 import { UserRole } from "../types";
 import { DEFAULT_WORKER_COINS } from "../constants";
@@ -50,7 +49,6 @@ function LoginPage({ onLogin }) {
         return;
       }
 
-      // সফল হলে parent App.jsx এ onLogin কল করবে
       onLogin(data.user, data.token);
     } catch (err) {
       console.error("Login error:", err);
@@ -60,13 +58,11 @@ function LoginPage({ onLogin }) {
     }
   };
 
-  // Google Sign-In (এখন demo/mock, পরে চাইলে Firebase Auth integrate করবে)
   const handleGoogleSignIn = async () => {
     setError("");
     setLoading(true);
 
     try {
-      // Firebase popup
       const result = await signInWithPopup(auth, googleProvider);
       const firebaseUser = result.user;
       const idToken = await firebaseUser.getIdToken();
@@ -97,8 +93,6 @@ function LoginPage({ onLogin }) {
     } finally {
       setLoading(false);
     }
-
-
   };
 
   return (
@@ -164,7 +158,10 @@ function LoginPage({ onLogin }) {
         </form>
 
         <div className="mt-8 relative">
-          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+          <div
+            className="absolute inset-0 flex items-center"
+            aria-hidden="true"
+          >
             <div className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-sm">

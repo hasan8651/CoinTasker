@@ -1,27 +1,30 @@
 import { useState, useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router";
-
-
 import BasicLayout from "./layouts/BasicLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
-
-
-import { UserRole } from "./types"; // JS এ UserRole = { Worker: 'Worker', ... } রাখবে
+import HomePage from "./HomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import {
+  getNotifications,
+  markNotificationAsRead,
+} from "./services/notificationService";
+import NotificationPopup from "./components/NotificationPopup";
+import { UserRole } from "./types";
 import {
   LOCAL_STORAGE_AUTH_TOKEN_KEY,
   LOCAL_STORAGE_USER_KEY,
 } from "./constants";
-// import NotificationPopup from "./components/NotificationPopup";
-import { getNotifications, markNotificationAsRead } from "./services/notificationService";
-import HomePage from "./HomePage";
 
-import RegisterPage from "./pages/RegisterPage";
-import LoginPage from "./pages/LoginPage";
-
+import BuyerHome from "./pages/buyer/BuyerHome";
+import BuyerAddTask from "./pages/buyer/BuyerAddTask";
+import BuyerMyTasks from "./pages/buyer/BuyerMyTasks";
+import BuyerPurchaseCoin from "./pages/buyer/BuyerPurchaseCoin";
+import BuyerPaymentHistory from "./pages/buyer/BuyerPaymentHistory";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null); // user object বা null
+  const [currentUser, setCurrentUser] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
@@ -35,7 +38,6 @@ function App() {
         const user = JSON.parse(userJson);
         setIsLoggedIn(true);
         setCurrentUser(user);
-        // logged in থাকলে notification load
         fetchNotifications(user.email);
       } catch (error) {
         console.error("Failed to parse user data from local storage", error);
@@ -48,7 +50,7 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchNotifications = async (userEmail) => {
+  const fetchNotifications = (userEmail) => {
     const userNotifications = getNotifications(userEmail);
     setNotifications(userNotifications);
   };
@@ -61,7 +63,7 @@ function App() {
     setCurrentUser(user);
     fetchNotifications(user.email);
 
-    navigate("/dashboard"); // login এর পর dashboard এ redirect
+    navigate("/dashboard");
   };
 
   const handleLogout = () => {
@@ -72,7 +74,12 @@ function App() {
     setCurrentUser(null);
     setNotifications([]);
 
-    navigate("/"); // logout এর পর home এ redirect
+    navigate("/");
+  };
+
+  const handleUserUpdate = (updatedUser) => {
+    setCurrentUser(updatedUser);
+    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(updatedUser));
   };
 
   const handleNotificationClick = (notificationId, actionRoute) => {
@@ -85,6 +92,8 @@ function App() {
   const toggleNotifications = () => {
     setShowNotifications((prev) => !prev);
   };
+
+  const role = String(currentUser?.role || "").toLowerCase();
 
   return (
     <div className="relative min-h-screen flex flex-col">
@@ -108,10 +117,9 @@ function App() {
             path="register"
             element={<RegisterPage onRegister={handleLogin} />}
           />
-          {/* আরও public route এখানে যোগ করতে পারো */}
         </Route>
 
-        {/* Dashboard layout routes (logged-in এর জন্য) */}
+        {/* Dashboard layout routes */}
         {isLoggedIn && currentUser && (
           <Route
             path="/dashboard/*"
@@ -125,7 +133,7 @@ function App() {
             }
           >
             {/* Worker routes */}
-            {currentUser.role === UserRole.Worker && (
+            {role === "worker" && (
               <>
                 <Route index element={<div>Worker Home</div>} />
                 <Route path="task-list" element={<div>Worker Task List</div>} />
@@ -141,24 +149,42 @@ function App() {
             )}
 
             {/* Buyer routes */}
-            {currentUser.role === UserRole.Buyer && (
+            {role === "buyer" && (
               <>
-                <Route index element={<div>Buyer Home</div>} />
+                <Route
+                  index
+                  element={<BuyerHome currentUser={currentUser} />}
+                />
                 <Route
                   path="add-new-tasks"
-                  element={<div>Buyer Add New Tasks</div>}
+                  element={
+                    <BuyerAddTask
+                      currentUser={currentUser}
+                      onUserUpdate={handleUserUpdate}
+                    />
+                  }
                 />
                 <Route
                   path="my-tasks"
-                  element={<div>Buyer My Tasks</div>}
+                  element={
+                    <BuyerMyTasks
+                      currentUser={currentUser}
+                      onUserUpdate={handleUserUpdate}
+                    />
+                  }
                 />
                 <Route
                   path="purchase-coin"
-                  element={<div>Buyer Purchase Coin</div>}
+                  element={
+                    <BuyerPurchaseCoin
+                      currentUser={currentUser}
+                      onUserUpdate={handleUserUpdate}
+                    />
+                  }
                 />
                 <Route
                   path="payment-history"
-                  element={<div>Buyer Payment History</div>}
+                  element={<BuyerPaymentHistory currentUser={currentUser} />}
                 />
               </>
             )}
@@ -190,7 +216,7 @@ function App() {
           </Route>
         )}
 
-        {/* Not logged in → dashboard এ গেলে login দেখাবে */}
+        {/* Not logged in → dashboard → login */}
         <Route
           path="/dashboard/*"
           element={<LoginPage onLogin={handleLogin} />}
@@ -214,10 +240,7 @@ function App() {
           onNotificationClick={handleNotificationClick}
         />
       )}
-
-      
     </div>
-    
   );
 }
 

@@ -1,8 +1,3 @@
-// src/services/notificationService.js
-
-// For demo purposes, notifications are stored in localStorage or a simple array.
-// In a real application, this would interact with a backend API.
-
 const NOTIFICATIONS_STORAGE_KEY = "microtasker_notifications";
 
 const getStoredNotifications = () => {

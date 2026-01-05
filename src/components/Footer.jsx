@@ -1,4 +1,3 @@
-// src/components/Footer.jsx
 import { WEBSITE_NAME } from "../constants";
 
 function Footer() {
@@ -22,7 +21,7 @@ function Footer() {
         <div className="flex items-center gap-4">
           {/* LinkedIn */}
           <a
-            href="https://www.linkedin.com/in/your-profile" // নিজের প্রোফাইল লিংক দেবে
+            href="https://www.linkedin.com/in/hasan865"
             target="_blank"
             rel="noopener noreferrer"
             className="text-base-content/70 hover:text-primary transition-colors"
@@ -39,7 +38,7 @@ function Footer() {
 
           {/* Facebook */}
           <a
-            href="https://facebook.com/your-profile"
+            href="https://facebook.com/hasan865"
             target="_blank"
             rel="noopener noreferrer"
             className="text-base-content/70 hover:text-primary transition-colors"
@@ -56,7 +55,7 @@ function Footer() {
 
           {/* GitHub */}
           <a
-            href="https://github.com/your-username"
+            href="https://github.com/hasan8651"
             target="_blank"
             rel="noopener noreferrer"
             className="text-base-content/70 hover:text-primary transition-colors"

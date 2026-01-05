@@ -12,35 +12,38 @@ function DashboardLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const getNavigationLinks = (role) => {
-    switch (role) {
-      case UserRole.Worker:
-        return [
-          { name: "Home", path: "/dashboard" },
-          { name: "Task List", path: "/dashboard/task-list" },
-          { name: "My Submissions", path: "/dashboard/my-submissions" },
-          { name: "Withdrawals", path: "/dashboard/withdrawals" },
-        ];
-      case UserRole.Buyer:
-        return [
-          { name: "Home", path: "/dashboard" },
-          { name: "Add New Tasks", path: "/dashboard/add-new-tasks" },
-          { name: "My Tasks", path: "/dashboard/my-tasks" },
-          { name: "Purchase Coin", path: "/dashboard/purchase-coin" },
-          { name: "Payment History", path: "/dashboard/payment-history" },
-        ];
-      case UserRole.Admin:
-        return [
-          { name: "Home", path: "/dashboard" },
-          { name: "Manage Users", path: "/dashboard/manage-users" },
-          { name: "Manage Tasks", path: "/dashboard/manage-tasks" },
-        ];
-      default:
-        return [];
-    }
-  };
+const navLinksByRole = (role) => {
+  switch (role) {
+    case UserRole.Worker:
+      return [
+        { name: "Home", path: "/dashboard" },
+        { name: "Task List", path: "/dashboard/task-list" },
+        { name: "My Submissions", path: "/dashboard/my-submissions" },
+        { name: "Withdrawals", path: "/dashboard/withdrawals" },
+      ];
 
-  const navLinks = getNavigationLinks(currentUser.role);
+    case UserRole.Buyer:
+      return [
+        { name: "Home", path: "/dashboard" },
+        { name: "Add New Tasks", path: "/dashboard/add-new-tasks" },
+        { name: "My Tasks", path: "/dashboard/my-tasks" },
+        { name: "Purchase Coin", path: "/dashboard/purchase-coin" },
+        { name: "Payment History", path: "/dashboard/payment-history" },
+      ];
+
+    case UserRole.Admin:
+      return [
+        { name: "Home", path: "/dashboard" },
+        { name: "Manage Users", path: "/dashboard/manage-users" },
+        { name: "Manage Task", path: "/dashboard/manage-tasks" },
+      ];
+
+    default:
+      return [];
+  }
+};
+
+  const navLinks = navLinksByRole(currentUser.role);
  const coins = currentUser.coins ?? 0;
   const avatarUrl =
     currentUser.photoUrl || "https://picsum.photos/50/50?random=avatar";

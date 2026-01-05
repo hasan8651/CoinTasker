@@ -1,4 +1,3 @@
-// src/pages/HomePage.jsx
 import { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
@@ -119,8 +118,7 @@ function HomePage() {
             Top Workers
           </h3>
           <p className="text-base text-base-content/70">
-            Our highest earning workers ranked by coins earned on the
-            platform.
+            Our highest earning workers ranked by coins earned on the platform.
           </p>
         </motion.div>
 
@@ -150,10 +148,7 @@ function HomePage() {
 
       {/* Testimonials Section (Swiper) */}
       <section className="py-16 px-4 bg-base-100">
-        <div
-          className="container mx-auto"
-          data-aos="fade-up"
-        >
+        <div className="container mx-auto" data-aos="fade-up">
           <h3 className="text-3xl md:text-4xl font-extrabold text-center text-base-content mb-10">
             What Our Users Say
           </h3>
@@ -208,12 +203,10 @@ function HomePage() {
             data-aos-delay="0"
           >
             <div className="text-4xl mb-3">📝</div>
-            <h4 className="text-xl font-semibold mb-2">
-              Post or Find Tasks
-            </h4>
+            <h4 className="text-xl font-semibold mb-2">Post or Find Tasks</h4>
             <p className="text-sm text-base-content/70">
-              Buyers create micro‑tasks, workers discover tasks that match
-              their time and skills.
+              Buyers create micro‑tasks, workers discover tasks that match their
+              time and skills.
             </p>
           </motion.div>
           <motion.div
@@ -222,9 +215,7 @@ function HomePage() {
             data-aos-delay="100"
           >
             <div className="text-4xl mb-3">📤</div>
-            <h4 className="text-xl font-semibold mb-2">
-              Submit & Review
-            </h4>
+            <h4 className="text-xl font-semibold mb-2">Submit & Review</h4>
             <p className="text-sm text-base-content/70">
               Workers submit proofs, buyers review submissions and approve
               quality work.
@@ -283,9 +274,7 @@ function HomePage() {
                 data-aos="fade-up"
                 data-aos-delay={idx * 100}
               >
-                <h4 className="text-lg font-semibold mb-2">
-                  {item.title}
-                </h4>
+                <h4 className="text-lg font-semibold mb-2">{item.title}</h4>
                 <p className="text-sm text-base-content/70">{item.desc}</p>
               </div>
             ))}
@@ -300,9 +289,9 @@ function HomePage() {
             Ready to start earning or hiring?
           </h3>
           <p className="text-sm md:text-base mb-8 opacity-90">
-            Join thousands of workers and buyers on {WEBSITE_NAME}. Whether
-            you want flexible income or reliable task completion, we&apos;ve
-            built the tools for you.
+            Join thousands of workers and buyers on {WEBSITE_NAME}. Whether you
+            want flexible income or reliable task completion, we&apos;ve built
+            the tools for you.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a href="/#/register" className="btn btn-gradient normal-case">

@@ -16,8 +16,7 @@ function NotificationPopup({ notifications, onClose, onNotificationClick }) {
     };
   }, [onClose]);
 
-  // copy করে sort করছি, যাতে মূল state array mutate না হয়
-  const sortedNotifications = [...notifications].sort(
+    const sortedNotifications = [...notifications].sort(
     (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()
   );
 
