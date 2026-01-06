@@ -1,20 +1,20 @@
 import { useState } from "react";
-
+import { Link } from "react-router";
 import { UserRole } from "../types";
 import { DEFAULT_WORKER_COINS, DEFAULT_BUYER_COINS } from "../constants";
-import { Link } from "react-router";
+import { uploadToImgbb } from "../services/imageUploader";
 
 function RegisterPage({ onRegister }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
+  const [imageFile, setImageFile] = useState(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState(UserRole.Worker);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // basic email + password validation (client-side)
   const validateInputs = () => {
     if (!name || !email || !password || !confirmPassword || !role) {
       setError("All fields are required.");
@@ -44,6 +44,19 @@ function RegisterPage({ onRegister }) {
     setError("");
 
     try {
+        let finalPhotoUrl = photoUrl;
+      if (imageFile) {
+        try {
+          finalPhotoUrl = await uploadToImgbb(imageFile);
+        } catch (uploadErr) {
+          console.error("Image upload failed:", uploadErr);
+          setError("Image upload failed. Try again.");
+          setLoading(false);
+          return;
+        }
+      }
+
+
       const baseUrl =
         import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -55,7 +68,7 @@ function RegisterPage({ onRegister }) {
         body: JSON.stringify({
           name,
           email,
-          photoUrl,
+          photoUrl: finalPhotoUrl,
           password,
           role,
         }),
@@ -109,16 +122,10 @@ function RegisterPage({ onRegister }) {
         <form onSubmit={handleRegister} className="space-y-6">
           {/* Name */}
           <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Full Name
-            </label>
+            <label className="label">Full Name</label>
             <input
               type="text"
-              id="name"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="input input-bordered w-full"
               placeholder="John Doe"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -128,16 +135,10 @@ function RegisterPage({ onRegister }) {
 
           {/* Email */}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email Address
-            </label>
+            <label className="label">Email Address</label>
             <input
               type="email"
-              id="email"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="input input-bordered w-full"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -145,36 +146,37 @@ function RegisterPage({ onRegister }) {
             />
           </div>
 
-          {/* Profile picture URL */}
-          <div>
-            <label
-              htmlFor="photoUrl"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Profile Picture URL (Optional)
-            </label>
-            <input
-              type="url"
-              id="photoUrl"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="https://example.com/your-picture.jpg"
-              value={photoUrl}
-              onChange={(e) => setPhotoUrl(e.target.value)}
-            />
+          {/* Profile Picture */}
+          <div className="form-control">
+            <label className="label">Profile Picture</label>
+            <div className="flex flex-col gap-2">
+              <input
+                type="url"
+                className="input input-bordered w-full"
+                placeholder="https://example.com/your-picture.jpg (Optional URL)"
+                value={photoUrl}
+                onChange={(e) => setPhotoUrl(e.target.value)}
+                disabled={!!imageFile}
+              />
+              <span className="text-center text-sm">OR</span>
+              <input
+                type="file"
+                className="file-input file-input-bordered w-full"
+                onChange={(e) => {
+                  setImageFile(e.target.files[0]);
+                  if (e.target.files[0]) setPhotoUrl("");
+                }}
+                accept="image/*"
+              />
+            </div>
           </div>
 
           {/* Password */}
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Password
-            </label>
+            <label className="label">Password</label>
             <input
               type="password"
-              id="password"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="input input-bordered w-full"
               placeholder="Minimum 6 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -182,18 +184,12 @@ function RegisterPage({ onRegister }) {
             />
           </div>
 
-          {/* Confirm password */}
+          {/* Confirm Password */}
           <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Confirm Password
-            </label>
+            <label className="label">Confirm Password</label>
             <input
               type="password"
-              id="confirmPassword"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="input input-bordered w-full"
               placeholder="Re-enter your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -201,17 +197,11 @@ function RegisterPage({ onRegister }) {
             />
           </div>
 
-          {/* Role select */}
+          {/* Role Select */}
           <div>
-            <label
-              htmlFor="role"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Select Role
-            </label>
+            <label className="label">Select Role</label>
             <select
-              id="role"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="select select-bordered w-full"
               value={role}
               onChange={(e) => setRole(e.target.value)}
               required
@@ -223,7 +213,7 @@ function RegisterPage({ onRegister }) {
 
           <button
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-300 disabled:opacity-50"
+            className="btn btn-primary w-full"
             disabled={loading}
           >
             {loading ? "Registering..." : "Register"}

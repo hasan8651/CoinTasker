@@ -111,6 +111,35 @@ function BuyerHome({ currentUser }) {
     }
   };
 
+  const handleReport = async (submission) => {
+  const reason = prompt("Please provide a reason for reporting this submission:");
+  if (!reason) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/reports`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        submissionId: submission.id,
+        taskTitle: submission.taskTitle,
+        reporterEmail: currentUser.email, // Buyer's email
+        workerEmail: submission.workerEmail, // Worker's email (যাকে রিপোর্ট করা হচ্ছে)
+        workerName: submission.workerName,
+        reason,
+      }),
+    });
+
+    if (res.ok) {
+      alert("Report submitted successfully to Admin.");
+    } else {
+      alert("Failed to submit report.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Network error.");
+  }
+};
+
   if (loading) {
     return <div className="p-4">Loading buyer dashboard...</div>;
   }
@@ -183,6 +212,9 @@ function BuyerHome({ currentUser }) {
                       >
                         Reject
                       </button>
+                      <button className="btn btn-xs btn-warning" onClick={() => handleReport(s)}>
+    Report
+  </button>
                     </td>
                   </tr>
                 ))}

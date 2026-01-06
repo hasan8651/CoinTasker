@@ -36,6 +36,7 @@ const navLinksByRole = (role) => {
         { name: "Home", path: "/dashboard" },
         { name: "Manage Users", path: "/dashboard/manage-users" },
         { name: "Manage Task", path: "/dashboard/manage-tasks" },
+         { name: "Reports", path: "/dashboard/reports" },
       ];
 
     default:

@@ -21,6 +21,17 @@ import BuyerAddTask from "./pages/buyer/BuyerAddTask";
 import BuyerMyTasks from "./pages/buyer/BuyerMyTasks";
 import BuyerPurchaseCoin from "./pages/buyer/BuyerPurchaseCoin";
 import BuyerPaymentHistory from "./pages/buyer/BuyerPaymentHistory";
+import AdminHome from "./pages/admin/AdminHome";
+import AdminManageUsers from "./pages/admin/AdminManageUsers";
+import AdminManageTasks from "./pages/admin/AdminManageTasks";
+import WorkerHome from "./pages/worker/WorkerHome";
+import WorkerTaskList from "./pages/worker/WorkerTaskList";
+import WorkerTaskDetails from "./pages/worker/WorkerTaskDetails";
+import WorkerMySubmissions from "./pages/worker/WorkerMySubmissions";
+import WorkerWithdrawals from "./pages/worker/WorkerWithdrawals";
+import AdminReports from "./pages/admin/AdminReports";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -50,10 +61,11 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchNotifications = (userEmail) => {
-    const userNotifications = getNotifications(userEmail);
-    setNotifications(userNotifications);
-  };
+const fetchNotifications = async (userEmail) => {
+  const res = await fetch(`${API_BASE}/api/notifications?email=${userEmail}`);
+  const data = await res.json();
+  setNotifications(data);
+};
 
   const handleLogin = (user, token) => {
     localStorage.setItem(LOCAL_STORAGE_AUTH_TOKEN_KEY, token);
@@ -133,20 +145,15 @@ function App() {
             }
           >
             {/* Worker routes */}
-            {role === "worker" && (
-              <>
-                <Route index element={<div>Worker Home</div>} />
-                <Route path="task-list" element={<div>Worker Task List</div>} />
-                <Route
-                  path="my-submissions"
-                  element={<div>Worker My Submissions</div>}
-                />
-                <Route
-                  path="withdrawals"
-                  element={<div>Worker Withdrawals</div>}
-                />
-              </>
-            )}
+          {role === "worker" && (
+  <>
+    <Route index element={<WorkerHome currentUser={currentUser} />} />
+    <Route path="task-list" element={<WorkerTaskList />} />
+    <Route path="task-details/:id" element={<WorkerTaskDetails currentUser={currentUser} />} />
+    <Route path="my-submissions" element={<WorkerMySubmissions currentUser={currentUser} />} />
+    <Route path="withdrawals" element={<WorkerWithdrawals currentUser={currentUser} />} />
+  </>
+)}
 
             {/* Buyer routes */}
             {role === "buyer" && (
@@ -190,19 +197,14 @@ function App() {
             )}
 
             {/* Admin routes */}
-            {currentUser.role === UserRole.Admin && (
-              <>
-                <Route index element={<div>Admin Home</div>} />
-                <Route
-                  path="manage-users"
-                  element={<div>Admin Manage Users</div>}
-                />
-                <Route
-                  path="manage-tasks"
-                  element={<div>Admin Manage Tasks</div>}
-                />
-              </>
-            )}
+          {role === "admin" && (
+  <>
+    <Route index element={<AdminHome />} />
+    <Route path="manage-users" element={<AdminManageUsers />} />
+    <Route path="manage-tasks" element={<AdminManageTasks />} />
+    <Route path="reports" element={<AdminReports />} />
+  </>
+)}
 
             {/* Logged-in user unauthorized / not found */}
             <Route
