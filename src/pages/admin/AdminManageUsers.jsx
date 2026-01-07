@@ -7,9 +7,13 @@ function AdminManageUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
+    const user = JSON.parse(localStorage.getItem("microtasker_user"));
+  const adminEmail = user?.email;
+
   const loadUsers = async () => {
+     if (!adminEmail) return;
     try {
-      const res = await fetch(`${API_BASE}/api/admin/users`);
+            const res = await fetch(`${API_BASE}/api/admin/users?email=${adminEmail}`);
       const data = await res.json();
       if (res.ok) setUsers(data);
     } catch (err) {
@@ -26,7 +30,7 @@ function AdminManageUsers() {
   const handleRemoveUser = async (id) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
     try {
-      const res = await fetch(`${API_BASE}/api/admin/users/${id}`, {
+            const res = await fetch(`${API_BASE}/api/admin/users/${id}?email=${adminEmail}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -45,7 +49,7 @@ function AdminManageUsers() {
       const res = await fetch(`${API_BASE}/api/admin/users/${id}/role`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: newRole }),
+     body: JSON.stringify({ role: newRole, email: adminEmail }),
       });
       if (res.ok) {
         alert(`User role updated to ${newRole}`);

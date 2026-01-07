@@ -13,12 +13,16 @@ function AdminHome() {
   const [withdrawRequests, setWithdrawRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const user = JSON.parse(localStorage.getItem("microtasker_user"));
+
+
   const loadData = async () => {
+     if (!user?.email) return;
     try {
       setLoading(true);
       const [statsRes, withdrawRes] = await Promise.all([
-        fetch(`${API_BASE}/api/admin/stats`),
-        fetch(`${API_BASE}/api/withdrawals/pending`),
+           fetch(`${API_BASE}/api/admin/stats?email=${user.email}`),
+        fetch(`${API_BASE}/api/withdrawals/pending?email=${user.email}`),
       ]);
 
       const statsData = await statsRes.json();

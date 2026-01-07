@@ -7,9 +7,13 @@ function AdminManageTasks() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
+    const user = JSON.parse(localStorage.getItem("microtasker_user"));
+  const adminEmail = user?.email;
+
   const loadTasks = async () => {
+      if (!adminEmail) return;
     try {
-      const res = await fetch(`${API_BASE}/api/admin/tasks`);
+            const res = await fetch(`${API_BASE}/api/admin/tasks?email=${adminEmail}`);
       const data = await res.json();
       if (res.ok) setTasks(data);
     } catch (err) {
@@ -19,26 +23,41 @@ function AdminManageTasks() {
     }
   };
 
-  useEffect(() => {
-    loadTasks();
-  }, []);
+useEffect(() => {
+  const loadTasks = async () => {
+    if (!adminEmail) return;
 
-  const handleDeleteTask = async (id) => {
-    if (!confirm("Are you sure you want to delete this task?")) return;
     try {
-      const res = await fetch(`${API_BASE}/api/admin/tasks/${id}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        alert("Task deleted successfully");
-        loadTasks();
-      } else {
-        alert("Failed to delete task");
-      }
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/api/admin/tasks?email=${adminEmail}`);
+      const data = await res.json();
+      if (res.ok) setTasks(data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
+
+  loadTasks();
+}, [adminEmail]);
+
+const handleDeleteTask = async (id) => {
+  if (!confirm("Are you sure you want to delete this task?")) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/tasks/${id}?email=${adminEmail}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      alert("Task deleted successfully");
+      setTasks((prevTasks) => prevTasks.filter((task) => task._id !== id));
+    } else {
+      alert("Failed to delete task");
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   if (loading) return <div className="p-4">Loading tasks...</div>;
 
